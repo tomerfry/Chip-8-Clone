@@ -3,7 +3,6 @@ Module defining the CHIP-8 class.
 """
 import logging
 import time
-import struct
 
 from consts import *
 from instruction_factory import get_from_raw
