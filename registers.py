@@ -51,7 +51,7 @@ class Registers(object):
         :param v_register: The specified v_register.
         :param value: The value to set the register to.
         """
-        self.v_registers[v_register] = value
+        self.v_registers[v_register] = value & REGISTER_BIT_MASK
 
     def forward_pc(self):
         """
@@ -71,10 +71,10 @@ class Registers(object):
         :param int value: The given value to set the register.
         :return: None
         """
-        self.pc = value
+        self.pc = value & WORD_REGISTER_BIT_MASK
 
     def set_i(self, value):
-        self.i = value
+        self.i = value & WORD_REGISTER_BIT_MASK
 
     def next_instruction_addr(self):
         return self.pc + 2

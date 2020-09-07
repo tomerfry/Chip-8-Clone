@@ -94,6 +94,11 @@ class AddRegInstruction(Instruction):
 
     def affect_chip_state(self, registers, mem, stack, screen):
         value = registers.v_registers[self.vx] + registers.v_registers[self.vy]
+        if value > 0xff:
+            registers.set_v_register(0xf, 1)
+        else:
+            registers.set_v_register(0xf, 0)
+
         registers.set_v_register(self.vx, value)
         registers.forward_pc()
 
@@ -106,7 +111,11 @@ class SubRegInstruction(Instruction):
 
     def affect_chip_state(self, registers, mem, stack, screen):
         value = registers.v_registers[self.vx] - registers.v_registers[self.vy]
-        registers.set_v_register(self.vx, value)
+        registers.set_v_register(self.vx, value & 0xff)
+        if value < 0:
+            registers.set_v_register(0xf, 1)
+        else:
+            registers.set_v_register(0xf, 0)
         registers.forward_pc()
 
 

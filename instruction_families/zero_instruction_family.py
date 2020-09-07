@@ -39,7 +39,7 @@ class ClsInstruction(Instruction):
         :param list stack: The chip stack.
         :return: None
         """
-        print('This instruction clears the screen')
+        screen.clear_screen()
         registers.forward_pc()
 
 

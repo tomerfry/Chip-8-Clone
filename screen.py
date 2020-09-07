@@ -106,13 +106,14 @@ class Screen(threading.Thread):
             set_to_unset = 0
             for col in range(width):
                 for row in range(height):
-                    matrix_x = x + col
-                    matrix_y = y + row
+                    matrix_x = (x + col) % self.width
+                    matrix_y = (y + row) % self.height
                     if matrix_x < self.width and matrix_y < self.height:
                         last_value = self.matrix[matrix_x, matrix_y]
                         self.matrix[matrix_x, matrix_y] ^= sprite_matrix[col, row]
                         if last_value == 1 and self.matrix[matrix_x, matrix_y] == 0:
                             set_to_unset = 1
+
             return set_to_unset
 
     @staticmethod
@@ -140,4 +141,9 @@ class Screen(threading.Thread):
                     pressed_key = key
         return pressed_key
 
+    def clear_screen(self):
+        with self.screen_lock:
+            for x in range(self.width):
+                for y in range(self.height):
+                    self.matrix[x, y] = 0
 

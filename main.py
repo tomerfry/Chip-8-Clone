@@ -33,6 +33,7 @@ def main():
     screen = Screen()
     screen.start()
 
+
     vm = Chip8(screen)
     threading.Thread(target=Chip8.start_chip, args=(vm, args.program)).start()
     logger.debug('Started the chip.')
