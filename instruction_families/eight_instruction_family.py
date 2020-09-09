@@ -39,122 +39,71 @@ def handle_eight_family(top_byte, bottom_byte, raw):
         return ShlInstruction(vx, vy, raw)
 
 
-class AssignInstruction(Instruction):
-    def __init__(self, vx, vy, raw):
-        super().__init__(raw)
-        self.vx = vx
-        self.vy = vy
-
-    def affect_chip_state(self, registers, mem, stack, screen):
-        registers.set_v_register(self.vx, registers.v_registers[self.vy])
-        registers.forward_pc()
+def AssignInstruction(self, registers, mem, stack, screen):
+    registers.set_v_register(self.vx, registers.v_registers[self.vy])
+    registers.forward_pc()
 
 
-class AssignBitOrInstruction(Instruction):
-    def __init__(self, vx, vy, raw):
-        super().__init__(raw)
-        self.vx = vx
-        self.vy = vy
-
-    def affect_chip_state(self, registers, mem, stack, screen):
-        value = registers.v_registers[self.vx] | registers.v_registers[self.vy]
-        registers.set_v_register(self.vx, value)
-        registers.forward_pc()
+def AssignBitOrInstruction(self, registers, mem, stack, screen):
+    value = registers.v_registers[self.vx] | registers.v_registers[self.vy]
+    registers.set_v_register(self.vx, value)
+    registers.forward_pc()
 
 
-class AssignBitAndInstruction(Instruction):
-    def __init__(self, vx, vy, raw):
-        super().__init__(raw)
-        self.vx = vx
-        self.vy = vy
-
-    def affect_chip_state(self, registers, mem, stack, screen):
-        value = registers.v_registers[self.vx] & registers.v_registers[self.vy]
-        registers.set_v_register(self.vx, value)
-        registers.forward_pc()
+def AssignBitAndInstruction(self, registers, mem, stack, screen):
+    value = registers.v_registers[self.vx] & registers.v_registers[self.vy]
+    registers.set_v_register(self.vx, value)
+    registers.forward_pc()
 
 
-class AssignBitXorInstruction(Instruction):
-    def __init__(self, vx, vy, raw):
-        super().__init__(raw)
-        self.vx = vx
-        self.vy = vy
-
-    def affect_chip_state(self, registers, mem, stack, screen):
-        value = registers.v_registers[self.vx] ^ registers.v_registers[self.vy]
-        registers.set_v_register(self.vx, value)
-        registers.forward_pc()
+def AssignBitXorInstruction(self, registers, mem, stack, screen):
+    value = registers.v_registers[self.vx] ^ registers.v_registers[self.vy]
+    registers.set_v_register(self.vx, value)
+    registers.forward_pc()
 
 
-class AddRegInstruction(Instruction):
-    def __init__(self, vx, vy, raw):
-        super().__init__(raw)
-        self.vx = vx
-        self.vy = vy
-
-    def affect_chip_state(self, registers, mem, stack, screen):
-        value = registers.v_registers[self.vx] + registers.v_registers[self.vy]
-        if value > 0xff:
-            registers.set_v_register(0xf, 1)
-        else:
-            registers.set_v_register(0xf, 0)
-
-        registers.set_v_register(self.vx, value)
-        registers.forward_pc()
+def AddRegInstruction(self, registers, mem, stack, screen):
+    value = registers.v_registers[self.vx] + registers.v_registers[self.vy]
+    if value > 0xff:
+        registers.set_v_register(0xf, 1)
+    else:
+        registers.set_v_register(0xf, 0)
+    registers.set_v_register(self.vx, value)
+    registers.forward_pc()
 
 
-class SubRegInstruction(Instruction):
-    def __init__(self, vx, vy, raw):
-        super().__init__(raw)
-        self.vx = vx
-        self.vy = vy
-
-    def affect_chip_state(self, registers, mem, stack, screen):
-        value = registers.v_registers[self.vx] - registers.v_registers[self.vy]
-        registers.set_v_register(self.vx, value & 0xff)
-        if value < 0:
-            registers.set_v_register(0xf, 1)
-        else:
-            registers.set_v_register(0xf, 0)
-        registers.forward_pc()
+def SubRegInstruction(self, registers, mem, stack, screen):
+    value = registers.v_registers[self.vx] - registers.v_registers[self.vy]
+    registers.set_v_register(self.vx, value & 0xff)
+    if value < 0:
+        registers.set_v_register(0xf, 1)
+    else:
+        registers.set_v_register(0xf, 0)
+    registers.forward_pc()
 
 
-class ShrInstruction(Instruction):
-    def __init__(self, vx, vy, raw):
-        super().__init__(raw)
-        self.vx = vx
-        self.vy = vy
-
-    def affect_chip_state(self, registers, mem, stack, screen):
-        value = registers.v_registers[self.vx] >> 0x1
-        registers.set_v_register(0xf, registers.v_registers[self.vx] & REGISTER_LEAST_SIG_BIT)
-        registers.set_v_register(self.vx, value)
-        registers.forward_pc()
+def ShrInstruction(self, registers, mem, stack, screen):
+    value = registers.v_registers[self.vx] >> 0x1
+    registers.set_v_register(0xf, registers.v_registers[self.vx] & REGISTER_LEAST_SIG_BIT)
+    registers.set_v_register(self.vx, value)
+    registers.forward_pc()
 
 
-class SubYByXInstruction(Instruction):
-    def __init__(self, vx, vy, raw):
-        super().__init__(raw)
-        self.vx = vx
-        self.vy = vy
-
-    def affect_chip_state(self, registers, mem, stack, screen):
-        value = registers.v_registers[self.vy] - registers.v_registers[self.vx]
-        registers.set_v_register(self.vx, value)
-        registers.forward_pc()
+def SubYByXInstruction(self, registers, mem, stack, screen):
+    value = registers.v_registers[self.vy] - registers.v_registers[self.vx]
+    registers.set_v_register(self.vx, value & 0xff)
+    if value < 0:
+        registers.set_v_register(0xf, 1)
+    else:
+        registers.set_v_register(0xf, 0)
+    registers.forward_pc()
 
 
-class ShlInstruction(Instruction):
-    def __init__(self, vx, vy, raw):
-        super().__init__(raw)
-        self.vx = vx
-        self.vy = vy
-
-    def affect_chip_state(self, registers, mem, stack, screen):
-        value = (registers.v_registers[self.vx] << 0x1) & REGISTER_BIT_MASK
-        registers.set_v_register(0xf, registers.v_registers[self.vx] & REGISTER_MOST_SIG_BIT)
-        registers.set_v_register(self.vx, value)
-        registers.forward_pc()
+def ShlInstruction(self, registers, mem, stack, screen):
+    value = (registers.v_registers[self.vx] << 0x1) & REGISTER_BIT_MASK
+    registers.set_v_register(0xf, registers.v_registers[self.vx] & REGISTER_MOST_SIG_BIT)
+    registers.set_v_register(self.vx, value)
+    registers.forward_pc()
 
 
 

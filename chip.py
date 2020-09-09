@@ -5,9 +5,8 @@ import logging
 import time
 
 from consts import *
-from instruction_factory import get_from_raw
+from byte_manipulation import *
 from registers import Registers
-
 
 def setup_chip_logging():
     """
@@ -71,8 +70,9 @@ class Chip8(object):
     def process_instruction(self):
         pc = self.registers.pc
         raw_instruction = self.mem[pc:pc+2]
-        instruction = get_from_raw(raw_instruction)
-        instruction.affect_chip_state(self.registers, self.mem, self.stack, self.screen)
+
+        instruction_handler = INSTRUCTIONS[get_top_nibble(raw_instruction[0])]
+        instruction_handler(self, raw_instruction)
 
     def processing(self):
         self.is_processing = True

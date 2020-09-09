@@ -1,36 +1,23 @@
 """
 This module implements the Instruction classes from the D family.
 """
-from instruction import Instruction
 from byte_manipulation import *
+from chip import Chip8
 
 
-def handle_d_family(top_byte, bottom_byte, raw):
+def handle_d_family(chip, raw):
     """
-    This function is used in instruction resolution.
-    :param top_byte: The top-byte of the instruction.
-    :param bottom_byte: The bottom-byte of the instruction.
-    :param raw: The raw instruction.
-    :return: The instruction instance.
-    :rtype: Instruction
+
+    :param Chip8 chip:
+    :param raw:
+    :return:
     """
-    vx = get_bottom_nibble(top_byte)
-    vy = get_top_nibble(bottom_byte)
-    height = get_bottom_nibble(bottom_byte)
-    return DrawInstruction(vx, vy, height, raw)
-
-
-class DrawInstruction(Instruction):
-    def __init__(self, v_register_x, v_register_y, height, raw):
-        super().__init__(raw)
-        self.v_register_x = v_register_x
-        self.v_register_y = v_register_y
-        self.height = height
-
-    def affect_chip_state(self, registers, mem, stack, screen):
-        raw_sprite = mem[registers.i:registers.i + self.height]
-        x = registers.v_registers[self.v_register_x]
-        y = registers.v_registers[self.v_register_y]
-        vf = screen.draw_sprite(x, y, 8, self.height, raw_sprite)
-        registers.set_v_register(0xf, vf)
-        registers.forward_pc()
+    vx = get_bottom_nibble(raw[0])
+    vy = get_top_nibble(raw[1])
+    height = get_bottom_nibble(raw[1])
+    raw_sprite = chip.mem[chip.registers.i:chip.registers.i + height]
+    x = chip.registers.v_registers[vx]
+    y = chip.registers.v_registers[vy]
+    vf = chip.screen.draw_sprite(x, y, 8, height, raw_sprite)
+    chip.registers.set_v_register(0xf, vf)
+    chip.registers.forward_pc()

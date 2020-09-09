@@ -1,48 +1,36 @@
 """
 This module implements the Instruction classes from the E family.
 """
-from instruction import Instruction
 from byte_manipulation import *
 from consts import *
+from chip import Chip8
 
 
-def handle_e_family(top_byte, bottom_byte, raw):
+def handle_e_family(chip, raw):
     """
-    This function is used in instruction resolution.
-    :param top_byte: The top-byte of the instruction.
-    :param bottom_byte: The bottom-byte of the instruction.
-    :param raw: The raw instruction.
-    :return: The instruction instance.
-    :rtype: Instruction
+
+    :param Chip8 chip:
+    :param raw:
+    :return:
     """
-    instruction_value = get_word(top_byte, bottom_byte) & E_OPCODE_BITMASK
-    vx = get_bottom_nibble(top_byte)
+    instruction_value = get_word(raw[0], raw[1]) & E_OPCODE_BITMASK
+    vx = get_bottom_nibble(raw[0])
 
     if instruction_value == E_KEY_PRESSED_OPCODE:
-        return KeyPressedInstruction(vx, raw)
+        key_pressed_instruction(vx, chip.registers, chip.screen)
     elif instruction_value == E_KEY_RELEASED_OPCODE:
-        return KeyReleasedInstruction(vx, raw)
+        key_released_instruction(vx, chip.registers, chip.screen)
 
 
-class KeyPressedInstruction(Instruction):
-    def __init__(self, vx, raw):
-        super().__init__(raw)
-        self.vx = vx
-
-    def affect_chip_state(self, registers, mem, stack, screen):
-        if screen.key_status(registers.v_registers[self.vx]):
-            registers.skip_pc()
-        else:
-            registers.forward_pc()
+def key_pressed_instruction(vx, registers, screen):
+    if screen.key_status(registers.v_registers[vx]):
+        registers.skip_pc()
+    else:
+        registers.forward_pc()
 
 
-class KeyReleasedInstruction(Instruction):
-    def __init__(self, vx, raw):
-        super().__init__(raw)
-        self.vx = vx
-
-    def affect_chip_state(self, registers, mem, stack, screen):
-        if not screen.key_status(registers.v_registers[self.vx]):
-            registers.skip_pc()
-        else:
-            registers.forward_pc()
+def key_released_instruction(vx, registers, screen):
+    if not screen.key_status(registers.v_registers[vx]):
+        registers.skip_pc()
+    else:
+        registers.forward_pc()

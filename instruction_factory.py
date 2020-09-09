@@ -56,5 +56,4 @@ def get_from_raw(raw):
     top_nibble = get_top_nibble(top_byte)
     if top_nibble not in INSTRUCTIONS:
         raise Exception('Unknown instruction: {}'.format(raw))
-    instruction_instance = INSTRUCTIONS[top_nibble](top_byte, bottom_byte, raw)
-    return instruction_instance
+    INSTRUCTIONS[top_nibble](top_byte, bottom_byte, raw)
