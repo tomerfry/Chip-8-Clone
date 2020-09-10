@@ -2,11 +2,13 @@
 Module defining the CHIP-8 class.
 """
 import logging
+import threading
 import time
 
-from consts import *
+from instruction_handlers import INSTRUCTIONS
 from byte_manipulation import *
 from registers import Registers
+
 
 def setup_chip_logging():
     """
@@ -19,12 +21,13 @@ def setup_chip_logging():
     return logger
 
 
-class Chip8(object):
+class Chip8():
     """
     The Chip-8 class.
     """
 
     def __init__(self, screen):
+        super().__init__()
         self.logger = setup_chip_logging()
         self.registers = Registers()
         self.mem = bytearray(MEMORY_SIZE)
@@ -78,7 +81,7 @@ class Chip8(object):
         self.is_processing = True
         last_time = time.time_ns()
 
-        while self.is_processing:
+        while self.is_processing and self.screen.is_screen_on:
             current_time = time.time_ns()
             if current_time - last_time >= DT_TIME_SPAN:
                 last_time = current_time
@@ -88,6 +91,10 @@ class Chip8(object):
 
     def start_chip(self, program):
         self.reset()
+        self.logger.debug('Reset the chip')
         self.load_interpreter()
+        self.logger.debug('Load the interpreter')
         self.read_memory_image(program)
+        self.logger.debug('Read memory image')
+
         self.processing()

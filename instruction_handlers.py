@@ -1,9 +1,7 @@
 """
 This module implements the Instruction-Factory .
 """
-import struct
-
-from byte_manipulation import *
+from consts import *
 from instruction_families.zero_instruction_family import handle_zero_family
 from instruction_families.one_instruction_family import handle_one_family
 from instruction_families.two_instruction_family import handle_two_family
@@ -43,17 +41,3 @@ INSTRUCTIONS = {
     E_FAMILY_ID: handle_e_family,
     F_FAMILY_ID: handle_f_family
 }
-
-
-def get_from_raw(raw):
-    """
-    Return an instruction instance
-    :param raw: The raw instruction bytes.
-    :return: A specific instance of an instruction.
-    :rtype: Instruction
-    """
-    top_byte, bottom_byte = struct.unpack(FIRST_BYTE_STRUCT, raw)
-    top_nibble = get_top_nibble(top_byte)
-    if top_nibble not in INSTRUCTIONS:
-        raise Exception('Unknown instruction: {}'.format(raw))
-    INSTRUCTIONS[top_nibble](top_byte, bottom_byte, raw)

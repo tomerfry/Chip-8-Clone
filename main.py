@@ -4,7 +4,6 @@ import argparse
 import logging
 import sys
 import threading
-import pygame
 
 from consts import *
 from chip import Chip8
@@ -33,9 +32,8 @@ def main():
     screen = Screen()
     screen.start()
 
-
     vm = Chip8(screen)
-    threading.Thread(target=Chip8.start_chip, args=(vm, args.program)).start()
+    vm.start_chip(args.program)
     logger.debug('Started the chip.')
 
 

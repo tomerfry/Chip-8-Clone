@@ -3,7 +3,6 @@ This module implements the Instruction classes from the E family.
 """
 from byte_manipulation import *
 from consts import *
-from chip import Chip8
 
 
 def handle_e_family(chip, raw):

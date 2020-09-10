@@ -2,7 +2,6 @@
 This module implements the Instruction classes from the D family.
 """
 from byte_manipulation import *
-from chip import Chip8
 
 
 def handle_d_family(chip, raw):

@@ -1,108 +1,104 @@
 """
 This module implements the Instruction classes from the eight family.
 """
-from instruction import Instruction
-from consts import *
 from byte_manipulation import *
 
 
-def handle_eight_family(top_byte, bottom_byte, raw):
+def handle_eight_family(chip, raw):
     """
-    This function is used in instruction resolution.
-    :param top_byte: The top-byte of the instruction.
-    :param bottom_byte: The bottom-byte of the instruction.
-    :param raw: The raw instruction.
-    :return: The instruction instance.
-    :rtype: Instruction
+
+    :param Chip8 chip:
+    :param raw:
+    :return:
     """
-    instruction_value = get_word(top_byte, bottom_byte)
+    instruction_value = get_word(raw[0], raw[1])
     instruction_opcode = instruction_value & EIGHT_OPCODE_BITMASK
-    vx = get_bottom_nibble(top_byte)
-    vy = get_top_nibble(bottom_byte)
+    vx = get_bottom_nibble(raw[0])
+    vy = get_top_nibble(raw[1])
     if instruction_opcode == ASSIGN_OPCODE:
-        return AssignInstruction(vx, vy, raw)
+        assign_instruction(vx, vy, chip.registers)
     elif instruction_opcode == ASSIGN_BIT_OR_OPCODE:
-        return AssignBitOrInstruction(vx, vy, raw)
+        assign_bit_or_instruction(vx, vy, chip.registers)
     elif instruction_opcode == ASSIGN_BIT_AND_OPCODE:
-        return AssignBitAndInstruction(vx, vy, raw)
+        assign_bit_and_instruction(vx, vy, chip.registers)
     elif instruction_opcode == ASSIGN_BIT_XOR_OPCODE:
-        return AssignBitXorInstruction(vx, vy, raw)
+        assign_bit_xor_instruction(vx, vy, chip.registers)
     elif instruction_opcode == ADD_REG_OPCODE:
-        return AddRegInstruction(vx, vy, raw)
+        add_reg_instruction(vx, vy, chip.registers)
     elif instruction_opcode == SUB_REG_OPCODE:
-        return SubRegInstruction(vx, vy, raw)
+        sub_reg_instruction(vx, vy, chip.registers)
     elif instruction_opcode == SHR_REG_OPCODE:
-        return ShrInstruction(vx, vy, raw)
+        shr_instruction(vx, vy, chip.registers)
     elif instruction_opcode == SUB_Y_BY_X_OPCODE:
-        return SubYByXInstruction(vx, vy, raw)
+        sub_y_by_xinstruction(vx, vy, chip.registers)
     elif instruction_opcode == SHL_REG_OPCODE:
-        return ShlInstruction(vx, vy, raw)
+        shl_instruction(vx, vy, chip.registers)
 
 
-def AssignInstruction(self, registers, mem, stack, screen):
-    registers.set_v_register(self.vx, registers.v_registers[self.vy])
+def assign_instruction(vx, vy, registers):
+    registers.set_v_register(vx, registers.v_registers[vy])
     registers.forward_pc()
 
 
-def AssignBitOrInstruction(self, registers, mem, stack, screen):
-    value = registers.v_registers[self.vx] | registers.v_registers[self.vy]
-    registers.set_v_register(self.vx, value)
+def assign_bit_or_instruction(vx, vy, registers):
+    value = registers.v_registers[vx] | registers.v_registers[vy]
+    registers.set_v_register(vx, value)
     registers.forward_pc()
 
 
-def AssignBitAndInstruction(self, registers, mem, stack, screen):
-    value = registers.v_registers[self.vx] & registers.v_registers[self.vy]
-    registers.set_v_register(self.vx, value)
+def assign_bit_and_instruction(vx, vy, registers):
+    value = registers.v_registers[vx] & registers.v_registers[vy]
+    registers.set_v_register(vx, value)
     registers.forward_pc()
 
 
-def AssignBitXorInstruction(self, registers, mem, stack, screen):
-    value = registers.v_registers[self.vx] ^ registers.v_registers[self.vy]
-    registers.set_v_register(self.vx, value)
+def assign_bit_xor_instruction(vx, vy, registers):
+    value = registers.v_registers[vx] ^ registers.v_registers[vy]
+    registers.set_v_register(vx, value)
     registers.forward_pc()
 
 
-def AddRegInstruction(self, registers, mem, stack, screen):
-    value = registers.v_registers[self.vx] + registers.v_registers[self.vy]
+def add_reg_instruction(vx, vy, registers):
+    value = (registers.v_registers[vx] + registers.v_registers[vy]) & 0xff
     if value > 0xff:
         registers.set_v_register(0xf, 1)
     else:
         registers.set_v_register(0xf, 0)
-    registers.set_v_register(self.vx, value)
+    registers.set_v_register(vx, value)
     registers.forward_pc()
 
 
-def SubRegInstruction(self, registers, mem, stack, screen):
-    value = registers.v_registers[self.vx] - registers.v_registers[self.vy]
-    registers.set_v_register(self.vx, value & 0xff)
-    if value < 0:
+def sub_reg_instruction(vx, vy, registers):
+    value = (registers.v_registers[vx] - registers.v_registers[vy]) & 0xff
+    registers.set_v_register(vx, value & 0xff)
+    if registers.v_registers[vx] < registers.v_registers[vy]:
         registers.set_v_register(0xf, 1)
     else:
         registers.set_v_register(0xf, 0)
     registers.forward_pc()
 
 
-def ShrInstruction(self, registers, mem, stack, screen):
-    value = registers.v_registers[self.vx] >> 0x1
-    registers.set_v_register(0xf, registers.v_registers[self.vx] & REGISTER_LEAST_SIG_BIT)
-    registers.set_v_register(self.vx, value)
+def shr_instruction(vx, vy, registers):
+    value = registers.v_registers[vx] >> 0x1
+    registers.set_v_register(0xf, registers.v_registers[vx] & REGISTER_LEAST_SIG_BIT)
+    registers.set_v_register(vx, value)
     registers.forward_pc()
 
 
-def SubYByXInstruction(self, registers, mem, stack, screen):
-    value = registers.v_registers[self.vy] - registers.v_registers[self.vx]
-    registers.set_v_register(self.vx, value & 0xff)
-    if value < 0:
+def sub_y_by_xinstruction(vx, vy, registers):
+    value = (registers.v_registers[vy] - registers.v_registers[vx]) & 0xff
+    registers.set_v_register(vx, value)
+    if registers.v_registers[vy] < registers.v_registers[vx]:
         registers.set_v_register(0xf, 1)
     else:
         registers.set_v_register(0xf, 0)
     registers.forward_pc()
 
 
-def ShlInstruction(self, registers, mem, stack, screen):
-    value = (registers.v_registers[self.vx] << 0x1) & REGISTER_BIT_MASK
-    registers.set_v_register(0xf, registers.v_registers[self.vx] & REGISTER_MOST_SIG_BIT)
-    registers.set_v_register(self.vx, value)
+def shl_instruction(vx, vy, registers):
+    value = (registers.v_registers[vx] << 0x1) & 0xff
+    registers.set_v_register(0xf, registers.v_registers[vx] & REGISTER_MOST_SIG_BIT)
+    registers.set_v_register(vx, value)
     registers.forward_pc()
 
 

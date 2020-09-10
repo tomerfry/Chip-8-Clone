@@ -1,8 +1,4 @@
-import struct
-
 # Program arguments
-from instruction_families.a_instruction_family import handle_a_family
-
 PROGRAM_ARGUMENT = '--program'
 DEFAULT_GAME = 'games/pong.ch8'
 
@@ -112,7 +108,6 @@ F_BCD_OPCODE = 0xf033
 F_MEM_DUMP_OPCODE = 0xf055
 F_MEM_LOAD_OPCODE = 0xf065
 
-
 # Fonts
 FONTS = [0xf0909090f0, 0x2060202070, 0xf010f080f0, 0xf010f010f0, 0x9090f01010, 0xf080f010f0, 0xf080f090f0, 0xf010204040,
          0xf090f090f0, 0xf090f010f0, 0xf090f09090, 0xe090e090e0, 0xf0808080f0, 0xe0909090e0, 0xf080f080f0, 0xf080f08080]
@@ -141,23 +136,3 @@ for font in FONTS:
     FONTS_MEMORY = FONTS_MEMORY << (8 * 5)
 FONTS_MEMORY_SIZE = 85
 FONTS_MEMORY = int.to_bytes(FONTS_MEMORY, FONTS_MEMORY_SIZE, byteorder='big')
-
-INSTRUCTIONS = {
-    ZERO_FAMILY_ID: None,
-    ONE_FAMILY_ID: None,
-    TWO_FAMILY_ID: None,
-    THREE_FAMILY_ID: None,
-    FOUR_FAMILY_ID: None,
-    FIVE_FAMILY_ID: None,
-    SIX_FAMILY_ID: None,
-    SEVEN_FAMILY_ID: None,
-    EIGHT_FAMILY_ID: None,
-    NINE_FAMILY_ID: None,
-    A_FAMILY_ID: handle_a_family,
-    B_FAMILY_ID: None,
-    C_FAMILY_ID: None,
-    D_FAMILY_ID: None,
-    E_FAMILY_ID: None,
-    F_FAMILY_ID: None
-}
-

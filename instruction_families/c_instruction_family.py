@@ -3,9 +3,7 @@ This module implements the Instruction classes from the C family.
 """
 import random
 
-from instruction import Instruction
 from byte_manipulation import *
-from chip import Chip8
 
 
 def handle_c_family(chip, raw):

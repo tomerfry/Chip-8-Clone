@@ -1,86 +1,56 @@
 """
 This module implements the Instruction classes from the zero family.
 """
-from instruction import Instruction
 from byte_manipulation import *
 
 
-def handle_zero_family(top_byte, bottom_byte, raw):
+def handle_zero_family(chip, raw):
     """
-    This function is used in instruction resolution.
-    :param top_byte: The top-byte of the instruction.
-    :param bottom_byte: The bottom-byte of the instruction.
-    :param raw: The raw instruction.
-    :return: The instruction instance.
-    :rtype: Instruction
+
+    :param Chip8 chip:
+    :param raw:
+    :return:
     """
-    instruction_value = get_word(top_byte, bottom_byte)
+    instruction_value = get_word(raw[0], raw[1])
+
     if instruction_value == CLS_INSTRUCTION:
-        return ClsInstruction(raw)
+        cls_instruction(chip.registers, chip.screen)
     elif instruction_value == RET_INSTRUCTION:
-        return RetInstruction(raw)
+        ret_instruction(chip.registers, chip.stack)
     else:
-        addr = get_three_last_nibbles(top_byte, bottom_byte)
-        return SysInstruction(addr, raw)
+        sys_instruction(chip.registers)
 
 
-class ClsInstruction(Instruction):
-    """
-    The Clear-screen instruction class.
-    """
-    def __init__(self, raw):
-        super().__init__(raw)
-
-    def affect_chip_state(self, registers, mem, stack, screen):
-        """
-        This affects the chip state according to the instruction.
-        :param Registers registers: The chip registers.
-        :param bytearray mem: The chip memory.
-        :param list stack: The chip stack.
-        :return: None
-        """
-        screen.clear_screen()
-        registers.forward_pc()
-
-
-class RetInstruction(Instruction):
-    """
-    The Return instruction class.
-    """
-    def __init__(self, raw):
-        super().__init__(raw)
-
-    def affect_chip_state(self, registers, mem, stack, screen):
-        """
-        This affects the chip state according to the instruction.
-        :param Registers registers: The chip registers.
-        :param bytearray mem: The chip memory.
-        :param list stack: The chip stack.
-        :return: None
-        """
-        registers.set_pc(stack.pop())
-
-
-class SysInstruction(Instruction):
-    """
-    The SysInstruction class.
+def cls_instruction(registers, screen):
     """
 
-    def __init__(self, addr, raw):
-        """
-        :param int addr: The call address destination.
-        :param bytearray raw: The raw bytes of the instruction.
-        """
-        super().__init__(raw)
-        self.addr = addr
+    :param Chip8 chip:
+    :param registers:
+    :param screen:
+    :return:
+    """
+    screen.clear_screen()
+    registers.forward_pc()
 
-    def affect_chip_state(self, registers, mem, stack, screen):
-        """
-        Affect the chip registers and memory.
-        :param Registers registers: The chip registers
-        :param bytearray mem: The chip memory
-        :param list stack: The chip stack
-        :return: None
-        """
-        print('This instruction is ignored')
-        registers.forward_pc()
+
+def ret_instruction(registers, stack):
+    """
+    This affects the chip state according to the instruction.
+    :param Registers registers: The chip registers.
+    :param bytearray mem: The chip memory.
+    :param list stack: The chip stack.
+    :return: None
+    """
+    registers.set_pc(stack.pop())
+
+
+def sys_instruction(registers):
+    """
+    Affect the chip registers and memory.
+    :param Registers registers: The chip registers
+    :param bytearray mem: The chip memory
+    :param list stack: The chip stack
+    :return: None
+    """
+    print('This instruction is ignored')
+    registers.forward_pc()

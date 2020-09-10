@@ -1,32 +1,23 @@
 """
 This module implements the Instruction classes from the nine family.
 """
-from instruction import Instruction
 from byte_manipulation import *
 
 
-def handle_nine_family(top_byte, bottom_byte, raw):
+def handle_nine_family(chip, raw):
     """
-    This function is used in instruction resolution.
-    :param top_byte: The top-byte of the instruction.
-    :param bottom_byte: The bottom-byte of the instruction.
-    :param raw: The raw instruction.
-    :return: The instruction instance.
-    :rtype: Instruction
+
+    :param Chip8 chip:
+    :param raw:
+    :return:
     """
-    vx = get_bottom_nibble(top_byte)
-    vy = get_top_nibble(bottom_byte)
-    return SkipNotEqualReg(vx, vy, raw)
+    vx = get_bottom_nibble(raw[0])
+    vy = get_top_nibble(raw[1])
+    skip_not_equal_reg(vx, vy, chip.registers)
 
 
-class SkipNotEqualReg(Instruction):
-    def __init__(self, vx, vy, raw):
-        super().__init__(raw)
-        self.vx = vx
-        self.vy = vy
-
-    def affect_chip_state(self, registers, mem, stack, screen):
-        if registers.v_registers[self.vx] != registers.v_registers[self.vy]:
-            registers.skip_pc()
-        else:
-            registers.forward_pc()
+def skip_not_equal_reg(vx, vy, registers):
+    if registers.v_registers[vx] != registers.v_registers[vy]:
+        registers.skip_pc()
+    else:
+        registers.forward_pc()

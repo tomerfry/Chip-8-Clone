@@ -1,138 +1,90 @@
 """
 This module implements the Instruction classes from the F family.
 """
-from instruction import Instruction
 from byte_manipulation import *
 from consts import *
 
 
-def handle_f_family(top_byte, bottom_byte, raw):
+def handle_f_family(chip, raw):
     """
-    This function is used in instruction resolution.
-    :param top_byte: The top-byte of the instruction.
-    :param bottom_byte: The bottom-byte of the instruction.
-    :param raw: The raw instruction.
-    :return: The instruction instance.
-    :rtype: Instruction
+
+    :param Chip8 chip:
+    :param raw:
+    :return:
     """
-    instruction_value = get_word(top_byte, bottom_byte) & F_OPCODE_BITMASK
-    vx = get_bottom_nibble(top_byte)
+    instruction_value = get_word(raw[0], raw[1]) & F_OPCODE_BITMASK
+    vx = get_bottom_nibble(raw[0])
     if instruction_value == F_GET_DT_OPCODE:
-        return GetDTInstruction(vx, raw)
+        get_dt_instruction(vx, chip.registers)
     elif instruction_value == F_AWAIT_KEY_OPCODE:
-        return AwaitKeyInstruction(vx, raw)
+        await_key_instruction(vx, chip.registers, chip.screen)
     elif instruction_value == F_SET_DT_OPCODE:
-        return SetDTInstruction(vx, raw)
+        set_dt_instruction(vx, chip.registers)
     elif instruction_value == F_SET_ST_OPCODE:
-        return SetSTInstruction(vx, raw)
+        set_st_instruction(vx, chip.registers)
     elif instruction_value == F_ADD_I_OPCODE:
-        return AddIInstruction(vx, raw)
+        add_i_instruction(vx, chip.registers)
     elif instruction_value == F_I_CHAR_ADDR_OPCODE:
-        return SetICharAddrInstruction(vx, raw)
+        set_i_char_addr_instruction(vx, chip.registers)
     elif instruction_value == F_BCD_OPCODE:
-        return BCDInstruction(vx, raw)
+        bcd_instruction(vx, chip.registers, chip.mem)
     elif instruction_value == F_MEM_DUMP_OPCODE:
-        return MemDumpInstruction(vx, raw)
+        mem_dump_instruction(vx, chip.registers, chip.mem)
     elif instruction_value == F_MEM_LOAD_OPCODE:
-        return MemLoadInstruction(vx, raw)
+        mem_load_instruction(vx, chip.registers, chip.mem)
 
 
-class GetDTInstruction(Instruction):
-    def __init__(self, vx, raw):
-        super().__init__(raw)
-        self.vx = vx
-
-    def affect_chip_state(self, registers, mem, stack, screen):
-        registers.set_v_register(self.vx, registers.dt)
-        registers.forward_pc()
+def get_dt_instruction(vx, registers):
+    registers.set_v_register(vx, registers.dt)
+    registers.forward_pc()
 
 
-class AwaitKeyInstruction(Instruction):
-    def __init__(self, vx, raw):
-        super().__init__(raw)
-        self.vx = vx
-
-    def affect_chip_state(self, registers, mem, stack, screen):
-        pressed_key = screen.await_key()
-        registers.set_v_register(self.vx, pressed_key)
-        registers.forward_pc()
+def await_key_instruction(vx, registers, screen):
+    pressed_key = screen.await_key()
+    registers.set_v_register(vx, pressed_key)
+    registers.forward_pc()
 
 
-class SetDTInstruction(Instruction):
-    def __init__(self, vx, raw):
-        super().__init__(raw)
-        self.vx = vx
-
-    def affect_chip_state(self, registers, mem, stack, screen):
-        registers.set_dt(registers.v_registers[self.vx])
-        registers.forward_pc()
+def set_dt_instruction(vx, registers):
+    registers.set_dt(registers.v_registers[vx])
+    registers.forward_pc()
 
 
-class SetSTInstruction(Instruction):
-    def __init__(self, vx, raw):
-        super().__init__(raw)
-        self.vx = vx
-
-    def affect_chip_state(self, registers, mem, stack, screen):
-        registers.set_st(registers.v_registers[self.vx])
-        registers.forward_pc()
+def set_st_instruction(vx, registers):
+    registers.set_st(registers.v_registers[vx])
+    registers.forward_pc()
 
 
-class AddIInstruction(Instruction):
-    def __init__(self, vx, raw):
-        super().__init__(raw)
-        self.vx = vx
-
-    def affect_chip_state(self, registers, mem, stack, screen):
-        registers.set_i(registers.i + registers.v_registers[self.vx])
-        registers.forward_pc()
+def add_i_instruction(vx, registers):
+    registers.set_i(registers.i + registers.v_registers[vx])
+    registers.forward_pc()
 
 
-class SetICharAddrInstruction(Instruction):
-    def __init__(self, vx, raw):
-        super().__init__(raw)
-        self.vx = vx
-
-    def affect_chip_state(self, registers, mem, stack, screen):
-        registers.set_i(FONTS_ADDRESSES[registers.v_registers[self.vx]])
-        registers.forward_pc()
+def set_i_char_addr_instruction(vx, registers):
+    registers.set_i(FONTS_ADDRESSES[registers.v_registers[vx]])
+    registers.forward_pc()
 
 
-class BCDInstruction(Instruction):
-    def __init__(self, vx, raw):
-        super().__init__(raw)
-        self.vx = vx
-
-    def affect_chip_state(self, registers, mem, stack, screen):
-        value = registers.v_registers[self.vx]
-        ones = value % 10
-        value //= 10
-        tens = value % 10
-        value //= 10
-        hundreds = value % 10
-        mem[registers.i] = hundreds
-        mem[registers.i + 1] = tens
-        mem[registers.i + 2] = ones
-        registers.forward_pc()
+def bcd_instruction(vx, registers, mem):
+    value = registers.v_registers[vx]
+    ones = value % 10
+    value //= 10
+    tens = value % 10
+    value //= 10
+    hundreds = value % 10
+    mem[registers.i] = hundreds
+    mem[registers.i + 1] = tens
+    mem[registers.i + 2] = ones
+    registers.forward_pc()
 
 
-class MemDumpInstruction(Instruction):
-    def __init__(self, vx, raw):
-        super().__init__(raw)
-        self.vx = vx
-
-    def affect_chip_state(self, registers, mem, stack, screen):
-        for i in range(self.vx):
-            mem[registers.i + i] = registers.v_registers[i]
-        registers.forward_pc()
+def mem_dump_instruction(vx, registers, mem):
+    for vr in range(vx + 1):
+        mem[registers.i + vr] = registers.v_registers[vr]
+    registers.forward_pc()
 
 
-class MemLoadInstruction(Instruction):
-    def __init__(self, vx, raw):
-        super().__init__(raw)
-        self.vx = vx
-
-    def affect_chip_state(self, registers, mem, stack, screen):
-        for i in range(self.vx):
-            registers.set_v_register(i, mem[registers.i + i])
-        registers.forward_pc()
+def mem_load_instruction(vx, registers, mem):
+    for i in range(vx + 1):
+        registers.set_v_register(i, mem[registers.i + i])
+    registers.forward_pc()
